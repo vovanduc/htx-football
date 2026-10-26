@@ -3,10 +3,16 @@ import { TACTICS, SCENARIOS } from './data/tactics.js';
 import { GOLDEN_RULES } from './data/rules.js';
 import { sanitizeLineup, swapPlayers, benchOf } from './engine.js';
 import { createPitch } from './pitch.js';
+import { buildTimeline, driftOpponents, finalScene } from './anim.js';
 
 const $ = sel => document.querySelector(sel);
 const playersById = Object.fromEntries(PLAYERS.map(p => [p.id, p]));
 const PHASE_LABEL = { attack: 'Tấn công', defend: 'Phòng thủ' };
+const PHASE_ICON = { attack: '⚔️', defend: '🛡️' };
+const STEP_MS = 1000; // thời gian một pha di chuyển
+const HOLD_MS = 900; // dừng để kịp đọc chú thích
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 // localStorage có thể bị chặn (private mode) → mọi truy cập đều bọc try/catch.
 const store = {
@@ -28,7 +34,7 @@ const state = {
   subPick: null, // id cầu thủ dự bị đang chờ vào sân
 };
 
-const pitch = createPitch($('#pitch'), { onTokenTap });
+const pitch = createPitch($('#pitch'), { onTokenTap, onReplay: () => play() });
 
 // ---------- URL hash: chia sẻ link thẳng tới chiến thuật/pha trong Zalo ----------
 function readHash() {
@@ -57,15 +63,73 @@ function current() {
   return { frame: t.phases[state.phase], title: t.name, phase: state.phase, item: t };
 }
 
-function renderPitch(frame, opts = {}) {
-  pitch.render(frame, {
-    lineup: state.lineup,
-    playersById,
-    me: state.me,
-    captainId: TEAM.captainId,
-    pickMode: Boolean(state.subPick),
-    ...opts,
-  });
+function frameKey() {
+  return state.tab === 'scenario' ? state.scenarioId : `${state.tacticId}:${state.phase}`;
+}
+
+function dressPitch() {
+  pitch.dress({ lineup: state.lineup, playersById, me: state.me, captainId: TEAM.captainId, pickMode: Boolean(state.subPick) });
+}
+
+// ---------- Hoạt cảnh: màn che → từng người di chuyển theo chiến thuật ----------
+let runId = 0; // tăng mỗi lần phát mới → chuỗi cũ tự dừng
+let sceneKey = null; // frame đang hiển thị; chỉ phát lại khi đổi frame
+
+function captionFor(slot, frame) {
+  const p = playersById[state.lineup[slot]];
+  return `<img src="${p.avatar}" alt=""><div><b>${p.name}${p.number ? ' #' + p.number : ''}</b> ${frame.duties[slot]}</div>`;
+}
+
+// Hành động ở nửa dưới sân → chú thích lên trên, và ngược lại.
+const captionSide = (y1, y2) => (Math.max(y1, y2) > 55 ? 'top' : 'bottom');
+
+async function play() {
+  const id = ++runId;
+  const alive = () => id === runId;
+  const { frame, title, phase } = current();
+  pitch.showReplay(false);
+  pitch.highlight(null);
+  pitch.setCaption('');
+  const end = finalScene(frame);
+  const done = () => {
+    pitch.highlight(null);
+    pitch.setCaption(`<span class="cap-joke">😆 ${frame.joke}</span>`, captionSide(end.ball[1], end.ball[1]));
+    pitch.showReplay(true);
+  };
+
+  if (reduceMotion.matches) {
+    pitch.hideCurtain();
+    pitch.setScene(end, 0);
+    done();
+    return;
+  }
+
+  pitch.showCurtain(title, `${PHASE_ICON[phase]} ${PHASE_LABEL[phase]}`);
+  pitch.setScene(frame, 700);
+  await sleep(1100);
+  if (!alive()) return;
+  pitch.hideCurtain();
+
+  let them = frame.them;
+  for (const step of buildTimeline(frame)) {
+    pitch.highlight(step.slot);
+    pitch.setCaption(captionFor(step.slot, frame), captionSide(step.from[1], step.to[1]));
+    if (step.kind === 'run') {
+      pitch.moveToken(step.slot, step.to, STEP_MS);
+    } else {
+      pitch.moveBall(step.to, STEP_MS * 0.8);
+      them = driftOpponents(them, step.to, 0.25, 4);
+      pitch.moveOpps(them, STEP_MS);
+    }
+    await sleep(STEP_MS + HOLD_MS);
+    if (!alive()) return;
+  }
+  done();
+}
+
+function stopPlayback() {
+  runId += 1;
+  sceneKey = null;
 }
 
 // ---------- Render ----------
@@ -76,12 +140,15 @@ function render() {
   $('#team-view').hidden = !isTeam;
   writeHash();
 
-  if (isTeam) { renderTeam(); return; }
+  if (isTeam) { stopPlayback(); renderTeam(); return; }
   renderPickers();
-  const { frame } = current();
-  renderPitch(frame);
+  dressPitch();
   renderBench();
   renderInfo();
+  if (frameKey() !== sceneKey) {
+    sceneKey = frameKey();
+    play();
+  }
 }
 
 function renderPickers() {
@@ -119,33 +186,17 @@ function renderBench() {
 }
 
 function renderInfo() {
-  const { frame, title, phase, item } = current();
+  const { title, phase, item } = current();
   const isTactic = state.tab === 'tactic';
   $('#info').innerHTML = `
     <div class="card">
       <div class="meta">
-        <span>${phase === 'attack' ? '⚔️' : '🛡️'} ${PHASE_LABEL[phase]}</span>
+        <span>${PHASE_ICON[phase]} ${PHASE_LABEL[phase]}</span>
         ${isTactic ? `<span title="Độ mệt">Độ mệt ${'🥵'.repeat(item.tiredness)}</span>` : ''}
       </div>
       <h2>${title}</h2>
       ${isTactic ? `<div class="nick">“${item.nickname}”</div><p>${item.summary}</p><p><b>Khi nào dùng:</b> ${item.when}</p>` : ''}
-    </div>
-    <div class="joke">${frame.joke}</div>
-    <div class="card">
-      <h2 style="font-size:16px;margin-bottom:10px">Nhiệm vụ từng người</h2>
-      <ul class="duties">
-        ${SLOTS.map(s => {
-          const p = playersById[state.lineup[s]];
-          return `<li class="${p.id === state.me ? 'me' : ''}">
-            <img src="${p.avatar}" alt="">
-            <div><div class="who"><b>${p.name}${p.number ? ' #' + p.number : ''}</b> · ${SLOT_LABELS[s]}</div>
-            <div class="what">${frame.duties[s]}</div></div>
-          </li>`;
-        }).join('')}
-      </ul>
-    </div>
-    <div class="legend">
-      <span><i></i>Chạy chỗ</span><span><i class="pass"></i>Chuyền bóng</span><span><i class="opp"></i>Đội bạn</span>
+      <p class="muted-hint">👆 Chạm vào cầu thủ trên sân để xem kỹ nhiệm vụ · ↻ Xem lại để chạy lại</p>
     </div>
   `;
 }

@@ -425,7 +425,7 @@ export const SCENARIOS = [
       them: [[50, 4], [54, 10], [46, 8], [34, 13], [66, 9], [48, 21], [70, 22], [50, 44]],
       arrows: [
         { from: 'RM', to: [55, 9], kind: 'pass' },
-        { from: 'LM', to: [40, 6], kind: 'run' },
+        { from: 'LM', to: [34, 4], kind: 'run' },
         { from: 'ST', to: [58, 7], kind: 'run' },
       ],
       duties: {
@@ -500,9 +500,9 @@ export const SCENARIOS = [
       us: { GK: [50, 86], LB: [28, 60], CB: [50, 66], RB: [72, 60], LM: [38, 40], CM: [54, 40], RM: [70, 34], ST: [55, 23] },
       them: [[50, 5], [62, 30], [40, 18], [75, 22], [30, 36], [48, 44], [80, 40], [50, 58]],
       arrows: [
-        { from: 'RM', to: [65, 31], kind: 'run' },
-        { from: 'ST', to: [60, 27], kind: 'run' },
-        { from: 'CM', to: [58, 35], kind: 'run' },
+        { from: 'RM', to: [71, 30], kind: 'run' },
+        { from: 'ST', to: [60, 22], kind: 'run' },
+        { from: 'CM', to: [56, 37], kind: 'run' },
       ],
       duties: {
         GK: 'Dâng cao, sẵn sàng phá bóng dài.',

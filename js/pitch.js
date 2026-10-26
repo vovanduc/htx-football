@@ -1,9 +1,9 @@
-// Render sa bàn: vạch sân (SVG 68x100), token cầu thủ theo slot, đối thủ, bóng, mũi tên.
-// Token giữ nguyên DOM theo slot → đổi frame thì CSS transition tự trượt.
+// Render sa bàn: vạch sân (SVG 68x100), token cầu thủ theo slot, đối thủ, bóng,
+// màn che "loading", dải chú thích và nút xem lại. Token giữ nguyên DOM theo slot →
+// đổi vị trí thì CSS transition tự trượt; thời lượng chỉnh theo từng lần di chuyển.
 import { SLOTS } from './data/roster.js';
 
 const W = 68; // tỉ lệ ngang của viewBox, khớp aspect-ratio 68/100 trong CSS
-const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const LINES = `
   <rect x="2" y="2" width="64" height="96" rx="0.5"/>
@@ -22,30 +22,30 @@ const LINES = `
   <rect x="28" y="98" width="12" height="1.6" style="stroke-width:.5"/>
 `;
 
-const MARKERS = `
-  <defs>
-    <marker id="m-run" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#fff"/>
-    </marker>
-    <marker id="m-pass" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#f5c542"/>
-    </marker>
-  </defs>
-`;
-
-const place = (el, [x, y]) => {
+const place = (el, [x, y], ms) => {
+  if (ms !== undefined) el.style.transitionDuration = `${ms}ms`;
   el.style.left = `${x}%`;
   el.style.top = `${y}%`;
 };
 
-export function createPitch(root, { onTokenTap } = {}) {
+export function createPitch(root, { onTokenTap, onReplay } = {}) {
   root.innerHTML = `
     <svg class="lines" viewBox="0 0 ${W} 100" preserveAspectRatio="none" aria-hidden="true">${LINES}</svg>
     <span class="end-label" style="top:3.5%">Khung thành đội bạn</span>
     <span class="end-label" style="bottom:3.5%">Nhà mình</span>
-    <svg class="arrows" viewBox="0 0 ${W} 100" preserveAspectRatio="none" aria-hidden="true">${MARKERS}<g></g></svg>
+    <div class="caption" aria-live="polite" hidden></div>
+    <button class="replay" hidden>↻ Xem lại</button>
+    <div class="curtain" hidden>
+      <div class="spin">⚽</div>
+      <div class="c-title"></div>
+      <div class="c-sub"></div>
+      <div class="whistle">Tuýt!</div>
+    </div>
   `;
-  const arrowSvg = root.querySelector('svg.arrows');
+  const caption = root.querySelector('.caption');
+  const replay = root.querySelector('.replay');
+  const curtain = root.querySelector('.curtain');
+  replay.addEventListener('click', () => onReplay?.());
 
   const opps = Array.from({ length: 8 }, (_, i) => {
     const d = document.createElement('div');
@@ -71,7 +71,8 @@ export function createPitch(root, { onTokenTap } = {}) {
     tokens[slot] = b;
   }
 
-  function render(frame, { lineup, playersById, me, captainId, pickMode = false }) {
+  // Cập nhật mặt/tên theo lineup, không đụng vị trí.
+  function dress({ lineup, playersById, me, captainId, pickMode = false }) {
     for (const slot of SLOTS) {
       const t = tokens[slot];
       const p = playersById[lineup[slot]];
@@ -84,30 +85,66 @@ export function createPitch(root, { onTokenTap } = {}) {
       t.classList.toggle('me', p.id === me);
       t.classList.toggle('pick', pickMode);
       t.setAttribute('aria-label', `${p.name}${p.number ? ' số ' + p.number : ''}`);
-      place(t, frame.us[slot]);
     }
-    frame.them.forEach((pt, i) => place(opps[i], pt));
-    place(ball, frame.ball);
-    drawArrows(frame);
   }
 
-  function drawArrows(frame) {
-    const g = document.createElementNS(SVG_NS, 'g');
-    for (const a of frame.arrows) {
-      const [x1, y1] = frame.us[a.from];
-      const [x2, y2] = a.to;
-      const line = document.createElementNS(SVG_NS, 'line');
-      line.setAttribute('x1', x1 * W / 100);
-      line.setAttribute('y1', y1);
-      line.setAttribute('x2', x2 * W / 100);
-      line.setAttribute('y2', y2);
-      line.setAttribute('class', a.kind);
-      line.setAttribute('marker-end', `url(#m-${a.kind})`);
-      g.append(line);
+  // Đặt toàn bộ sân theo một trạng thái {us, them, ball}.
+  function setScene({ us, them, ball: b }, ms) {
+    for (const slot of SLOTS) {
+      tokens[slot].classList.remove('running');
+      place(tokens[slot], us[slot], ms);
     }
-    // Thay <g> mới để animation fade-in chạy lại mỗi lần đổi frame.
-    arrowSvg.querySelector('g').replaceWith(g);
+    them.forEach((pt, i) => place(opps[i], pt, ms));
+    place(ball, b, ms);
+    ball.classList.remove('rolling');
   }
 
-  return { render };
+  function moveToken(slot, pt, ms) {
+    const t = tokens[slot];
+    t.classList.add('running');
+    place(t, pt, ms);
+    setTimeout(() => t.classList.remove('running'), ms);
+  }
+
+  function moveBall(pt, ms) {
+    ball.classList.add('rolling');
+    place(ball, pt, ms);
+    setTimeout(() => ball.classList.remove('rolling'), ms);
+  }
+
+  function moveOpps(pts, ms) {
+    pts.forEach((pt, i) => place(opps[i], pt, ms));
+  }
+
+  function highlight(slot) {
+    for (const s of SLOTS) tokens[s].classList.toggle('active', s === slot);
+  }
+
+  function showCurtain(title, sub) {
+    curtain.querySelector('.c-title').textContent = title;
+    curtain.querySelector('.c-sub').textContent = sub;
+    curtain.hidden = false;
+    // Khởi động lại animation CSS mỗi lần hiện.
+    curtain.classList.remove('show');
+    void curtain.offsetWidth;
+    curtain.classList.add('show');
+  }
+
+  function hideCurtain() {
+    curtain.hidden = true;
+  }
+
+  // where: 'top' | 'bottom' — đặt chú thích phía không có người đang chạy.
+  function setCaption(html, where = 'bottom') {
+    caption.hidden = !html;
+    caption.innerHTML = html ?? '';
+    caption.classList.toggle('top', where === 'top');
+    replay.classList.toggle('low', where === 'top');
+  }
+
+  function showReplay(on) {
+    replay.hidden = !on;
+  }
+
+  return { dress, setScene, moveToken, moveBall, moveOpps, highlight, showCurtain, hideCurtain, setCaption, showReplay };
 }
