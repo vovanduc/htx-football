@@ -44,12 +44,12 @@
     {
       "id": "feat-002",
       "name": "Deploy GitHub Pages",
-      "description": "Repo public vovanduc/htx-football, Pages từ main root, URL trả 200 — chỉ sau khi user OK bản local",
+      "description": "Repo public vovanduc/htx-football, GitHub Pages từ main root",
       "dependencies": [
         "feat-001"
       ],
-      "status": "not-started",
-      "evidence": ""
+      "status": "done",
+      "evidence": "2026-10-27: gh repo create --public + push main; Pages source main:/ → https://vovanduc.github.io/htx-football/ status built, HTTP 200; Playwright trên URL live: hoạt cảnh chạy, avatar 200, tab Đội 8 thẻ, 0 lỗi 4xx/5xx, 0 page error."
     }
   ]
 }
