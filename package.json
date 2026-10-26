@@ -1,0 +1,9 @@
+{
+  "name": "htx-football",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "serve": "python3 -m http.server 8077"
+  }
+}

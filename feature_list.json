@@ -1,0 +1,22 @@
+{
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "Sa bàn v1",
+      "description": "Sa bàn 8 người (3-2-2 của anh Cường), 6 chiến thuật tấn công/phòng thủ, 8 tình huống, nhiệm vụ từng vị trí, quiz đứng đúng chỗ, thay người, bài học, mobile-first",
+      "spec": "docs/specs/2026-10-26-sa-ban-chien-thuat-design.md",
+      "plan": "docs/plans/2026-10-26-sa-ban-v1.md",
+      "dependencies": [],
+      "status": "in-progress",
+      "evidence": ""
+    },
+    {
+      "id": "feat-002",
+      "name": "Deploy GitHub Pages",
+      "description": "Repo public vovanduc/htx-football, Pages từ main root, URL trả 200 — chỉ sau khi user OK bản local",
+      "dependencies": ["feat-001"],
+      "status": "not-started",
+      "evidence": ""
+    }
+  ]
+}
