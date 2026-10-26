@@ -3,7 +3,7 @@ import { SLOTS, SLOT_LABELS } from './data/roster.js';
 import { allFrames } from './data/tactics.js';
 import { distance, scoreDrop, clampPoint } from './engine.js';
 
-const START = [50, 50];
+const START = [8, 96]; // góc trống, không ai đứng → không bị token khác đè
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 export function createQuiz({ pitch, bar, info, getCtx, renderFrame }) {

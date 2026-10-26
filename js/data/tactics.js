@@ -76,7 +76,7 @@ export const TACTICS = [
           LB: 'Dâng lên kèm cầu thủ cánh của đối phương, không cho quay người.',
           CB: 'Kèm tiền đạo đối phương, đứng cao tới giữa sân.',
           RB: 'Dâng lên khóa biên phải, sẵn sàng cắt bóng dài.',
-          LM: 'Khóa đường chuyền ra biên trái của đối phương.',
+          LM: 'Khóa đường chuyền ra biên trái (phía mình).',
           CM: 'Kèm sát tiền vệ trung tâm đối phương, cắt chuyền vào giữa.',
           RM: 'Ép trung vệ còn lại, chặn đường chuyền ngang.',
           ST: 'Lao vào người cầm bóng, chạy theo hướng ép ra biên.',
@@ -165,11 +165,11 @@ export const TACTICS = [
     phases: {
       attack: {
         ball: [50, 52],
-        us: { GK: [50, 88], LB: [12, 62], CB: [50, 70], RB: [88, 62], LM: [26, 44], CM: [50, 52], RM: [74, 44], ST: [50, 34] },
+        us: { GK: [50, 88], LB: [12, 62], CB: [50, 70], RB: [88, 62], LM: [26, 30], CM: [50, 52], RM: [74, 30], ST: [50, 34] },
         them: [[50, 5], [32, 22], [50, 20], [68, 22], [30, 38], [50, 36], [70, 38], [50, 46]],
         arrows: [
-          { from: 'CM', to: [27, 45], kind: 'pass' },
-          { from: 'CM', to: [73, 45], kind: 'pass' },
+          { from: 'CM', to: [27, 32], kind: 'pass' },
+          { from: 'CM', to: [73, 32], kind: 'pass' },
           { from: 'ST', to: [50, 40], kind: 'run' },
         ],
         duties: {
@@ -216,7 +216,7 @@ export const TACTICS = [
     phases: {
       attack: {
         ball: [18, 36],
-        us: { GK: [50, 88], LB: [12, 46], CB: [52, 66], RB: [70, 62], LM: [18, 36], CM: [38, 42], RM: [74, 34], ST: [50, 18] },
+        us: { GK: [50, 88], LB: [12, 46], CB: [38, 66], RB: [58, 66], LM: [18, 36], CM: [38, 42], RM: [74, 34], ST: [50, 18] },
         them: [[50, 5], [30, 18], [50, 16], [70, 20], [24, 34], [50, 36], [74, 40], [50, 56]],
         arrows: [
           { from: 'LB', to: [8, 16], kind: 'run' },
@@ -420,13 +420,13 @@ export const SCENARIOS = [
     name: 'Phạt góc tấn công',
     phase: 'attack',
     frame: {
-      ball: [98, 2],
-      us: { GK: [50, 80], LB: [24, 40], CB: [50, 22], RB: [84, 12], LM: [36, 12], CM: [44, 10], RM: [97, 3], ST: [56, 8] },
-      them: [[50, 3], [52, 8], [44, 8], [38, 12], [56, 12], [48, 18], [60, 20], [50, 40]],
+      ball: [91, 7],
+      us: { GK: [50, 80], LB: [24, 44], CB: [50, 30], RB: [82, 20], LM: [28, 18], CM: [40, 11], RM: [92, 7], ST: [62, 15] },
+      them: [[50, 4], [54, 10], [46, 8], [34, 13], [66, 9], [48, 21], [70, 22], [50, 44]],
       arrows: [
-        { from: 'RM', to: [54, 8], kind: 'pass' },
-        { from: 'LM', to: [42, 5], kind: 'run' },
-        { from: 'ST', to: [52, 4], kind: 'run' },
+        { from: 'RM', to: [55, 9], kind: 'pass' },
+        { from: 'LM', to: [40, 6], kind: 'run' },
+        { from: 'ST', to: [58, 7], kind: 'run' },
       ],
       duties: {
         GK: 'Dâng cao tới giữa phần sân mình.',

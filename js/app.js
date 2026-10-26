@@ -42,7 +42,7 @@ const quiz = createQuiz({
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   const tab = h.get('tab');
-  if (['tactic', 'scenario', 'quiz', 'team'].includes(tab)) state.tab = tab;
+  if (['tactic', 'scenario', 'quiz', 'team'].includes(tab) && tab !== state.tab) { state.tab = tab; state.subPick = null; }
   if (TACTICS.some(t => t.id === h.get('t'))) state.tacticId = h.get('t');
   if (['attack', 'defend'].includes(h.get('p'))) state.phase = h.get('p');
   if (SCENARIOS.some(s => s.id === h.get('s'))) state.scenarioId = h.get('s');
@@ -77,6 +77,8 @@ function renderPitch(frame, opts = {}) {
 }
 
 // ---------- Render ----------
+let quizRunning = false;
+
 function render() {
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   const isTeam = state.tab === 'team';
@@ -84,14 +86,16 @@ function render() {
   $('#team-view').hidden = !isTeam;
   writeHash();
 
-  if (isTeam) { quiz.stop(); renderTeam(); return; }
   if (state.tab === 'quiz') {
     $('#pickers').innerHTML = '';
     $('#bench').innerHTML = '';
-    quiz.start();
+    // Đổi "Tôi là" giữa chừng không được thay câu hỏi đang làm.
+    if (!quizRunning) { quizRunning = true; quiz.start(); }
     return;
   }
   quiz.stop();
+  quizRunning = false;
+  if (isTeam) { renderTeam(); return; }
   renderPickers();
   const { frame } = current();
   renderPitch(frame);
