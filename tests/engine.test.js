@@ -17,22 +17,22 @@ test('sanitizeLineup về mặc định khi id lạ, thiếu slot, trùng ngư�
 });
 
 test('swapPlayers: dự bị vào thay người trên sân', () => {
-  const out = swapPlayers(DEFAULT_LINEUP, 'minhhung', 'cuong');
+  const out = swapPlayers(DEFAULT_LINEUP, 'minhhung', 'cuong', PLAYERS);
   assert.equal(out.ST, 'minhhung');
   assert.equal(DEFAULT_LINEUP.ST, 'cuong', 'không mutate input');
   assert.deepEqual(benchOf(out, PLAYERS).map(p => p.id), ['cuong']);
 });
 
 test('swapPlayers: hai người trên sân đổi chỗ', () => {
-  const out = swapPlayers(DEFAULT_LINEUP, 'duc', 'cuong');
+  const out = swapPlayers(DEFAULT_LINEUP, 'duc', 'cuong', PLAYERS);
   assert.equal(out.ST, 'duc');
   assert.equal(out.CM, 'cuong');
 });
 
 test('swapPlayers: cùng người, hai dự bị hoặc id lạ → không đổi', () => {
-  assert.deepEqual(swapPlayers(DEFAULT_LINEUP, 'duc', 'duc'), DEFAULT_LINEUP);
-  assert.deepEqual(swapPlayers(DEFAULT_LINEUP, 'ghost', 'duc'), DEFAULT_LINEUP);
-  assert.deepEqual(swapPlayers(DEFAULT_LINEUP, 'minhhung', 'ghost'), DEFAULT_LINEUP);
+  assert.deepEqual(swapPlayers(DEFAULT_LINEUP, 'duc', 'duc', PLAYERS), DEFAULT_LINEUP);
+  assert.deepEqual(swapPlayers(DEFAULT_LINEUP, 'ghost', 'duc', PLAYERS), DEFAULT_LINEUP);
+  assert.deepEqual(swapPlayers(DEFAULT_LINEUP, 'minhhung', 'ghost', PLAYERS), DEFAULT_LINEUP);
 });
 
 test('benchOf trả người không có slot', () => {

@@ -18,10 +18,11 @@ function slotOf(lineup, id) {
   return SLOTS.find(s => lineup[s] === id);
 }
 
-// a hoặc b có thể là dự bị; cần ít nhất một người trên sân.
-export function swapPlayers(lineup, aId, bId) {
+// a hoặc b có thể là dự bị; cần ít nhất một người trên sân, cả hai phải có trong danh sách.
+export function swapPlayers(lineup, aId, bId, players) {
   const out = { ...lineup };
-  if (aId === bId) return out;
+  const ids = new Set(players.map(p => p.id));
+  if (aId === bId || !ids.has(aId) || !ids.has(bId)) return out;
   const sa = slotOf(lineup, aId);
   const sb = slotOf(lineup, bId);
   if (!sa && !sb) return out;
