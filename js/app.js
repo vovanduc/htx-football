@@ -11,6 +11,7 @@ const PHASE_LABEL = { attack: 'Tấn công', defend: 'Phòng thủ' };
 const PHASE_ICON = { attack: '⚔️', defend: '🛡️' };
 const STEP_MS = 1000; // thời gian một pha di chuyển
 const HOLD_MS = 900; // dừng để kịp đọc chú thích
+const ARROW_MS = 550; // mũi tên vẽ xong rồi người/bóng mới chạy
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -88,6 +89,7 @@ async function play() {
   const alive = () => id === runId;
   const { frame, title, phase } = current();
   pitch.showReplay(false);
+  pitch.clearArrows();
   pitch.highlight(null);
   pitch.setCaption('');
   const end = finalScene(frame);
@@ -99,6 +101,8 @@ async function play() {
 
   if (reduceMotion.matches) {
     pitch.hideCurtain();
+    pitch.setScene(frame, 0);
+    for (const step of buildTimeline(frame)) pitch.showArrow(step.from, step.to, step.kind);
     pitch.setScene(end, 0);
     done();
     return;
@@ -114,6 +118,9 @@ async function play() {
   for (const step of buildTimeline(frame)) {
     pitch.highlight(step.slot);
     pitch.setCaption(captionFor(step.slot, frame), captionSide(step.from[1], step.to[1]));
+    pitch.showArrow(step.from, step.to, step.kind);
+    await sleep(ARROW_MS);
+    if (!alive()) return;
     if (step.kind === 'run') {
       pitch.moveToken(step.slot, step.to, STEP_MS);
     } else {

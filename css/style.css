@@ -92,7 +92,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
   box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.08);
   touch-action: manipulation; user-select: none;
 }
-.pitch svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pitch svg.lines, .pitch svg.arrows { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .pitch svg.lines * { fill: none; stroke: rgba(255,255,255,.75); stroke-width: .35; }
 .pitch .end-label { position: absolute; left: 4.5%; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.55); }
 
@@ -174,6 +174,15 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
   opacity: 0; animation: whistle .5s ease .45s forwards;
 }
 
+/* Mũi tên báo trước hướng chạy/chuyền */
+.pitch svg.arrows { z-index: 4; }
+.pitch svg.arrows line { stroke-width: .7; fill: none; stroke-linecap: round; }
+.pitch svg.arrows .run { stroke: #fff; }
+.pitch svg.arrows .pass { stroke: var(--gold); }
+.pitch svg.arrows line.live { stroke-dasharray: 100; stroke-dashoffset: 100; animation: draw .55s ease-out forwards; }
+.pitch svg.arrows line.pass.live { animation: draw .55s ease-out forwards, dashy 0s .55s forwards; }
+.pitch svg.arrows line.trail { opacity: .35; stroke-dasharray: 1.2 1.2; stroke-dashoffset: 0; }
+
 /* Nút */
 .btn {
   border: 0; background: var(--teal); color: #fff; font-weight: 700; padding: 10px 14px; border-radius: 10px; min-height: var(--tap);
@@ -239,6 +248,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(30px); opacity: .5; } to { transform: none; opacity: 1; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes dashy { to { stroke-dasharray: 2 1.2; } }
 @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
 @keyframes roll { to { rotate: 360deg; } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -278,5 +289,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
 
 @media (prefers-reduced-motion: reduce) {
   .token.running .face, .ball.rolling, .curtain .spin { animation: none; }
+  .pitch svg.arrows line.live { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
   .token, .opp, .ball { transition: none; }
   }

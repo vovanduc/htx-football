@@ -4,6 +4,18 @@
 import { SLOTS } from './data/roster.js';
 
 const W = 68; // tỉ lệ ngang của viewBox, khớp aspect-ratio 68/100 trong CSS
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+const MARKERS = `
+  <defs>
+    <marker id="m-run" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#fff"/>
+    </marker>
+    <marker id="m-pass" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#f5c542"/>
+    </marker>
+  </defs>
+`;
 
 const LINES = `
   <rect x="2" y="2" width="64" height="96" rx="0.5"/>
@@ -33,6 +45,7 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
     <svg class="lines" viewBox="0 0 ${W} 100" preserveAspectRatio="none" aria-hidden="true">${LINES}</svg>
     <span class="end-label" style="top:3.5%">Khung thành đội bạn</span>
     <span class="end-label" style="bottom:3.5%">Nhà mình</span>
+    <svg class="arrows" viewBox="0 0 ${W} 100" preserveAspectRatio="none" aria-hidden="true">${MARKERS}<g></g></svg>
     <div class="caption" aria-live="polite" hidden></div>
     <button class="replay" hidden>↻ Xem lại</button>
     <div class="curtain" hidden>
@@ -45,6 +58,7 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
   const caption = root.querySelector('.caption');
   const replay = root.querySelector('.replay');
   const curtain = root.querySelector('.curtain');
+  const arrowLayer = root.querySelector('svg.arrows g');
   replay.addEventListener('click', () => onReplay?.());
 
   const opps = Array.from({ length: 8 }, (_, i) => {
@@ -116,6 +130,24 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
     pts.forEach((pt, i) => place(opps[i], pt, ms));
   }
 
+  // Vẽ mũi tên báo trước hướng di chuyển; mũi tên cũ mờ đi thành vệt.
+  function showArrow(from, to, kind) {
+    arrowLayer.querySelectorAll('line.live').forEach(l => l.classList.replace('live', 'trail'));
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('x1', from[0] * W / 100);
+    line.setAttribute('y1', from[1]);
+    line.setAttribute('x2', to[0] * W / 100);
+    line.setAttribute('y2', to[1]);
+    line.setAttribute('class', `${kind} live`);
+    line.setAttribute('marker-end', `url(#m-${kind})`);
+    line.setAttribute('pathLength', '100');
+    arrowLayer.append(line);
+  }
+
+  function clearArrows() {
+    arrowLayer.replaceChildren();
+  }
+
   function highlight(slot) {
     for (const s of SLOTS) tokens[s].classList.toggle('active', s === slot);
   }
@@ -146,5 +178,5 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
     replay.hidden = !on;
   }
 
-  return { dress, setScene, moveToken, moveBall, moveOpps, highlight, showCurtain, hideCurtain, setCaption, showReplay };
+  return { dress, setScene, showArrow, clearArrows, moveToken, moveBall, moveOpps, highlight, showCurtain, hideCurtain, setCaption, showReplay };
 }
