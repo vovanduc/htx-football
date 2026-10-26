@@ -14,6 +14,7 @@ export const PLAYERS = [
   { id: 'son', name: 'Sơn', number: 10, avatar: 'assets/avatars/son.jpg' },
   { id: 'linh', name: 'Linh', number: 11, avatar: 'assets/avatars/linh.jpg' },
   { id: 'quan', name: 'Quân', number: 17, avatar: 'assets/avatars/quan.jpg' },
+  // Chưa xếp vào DEFAULT_LINEUP → không hiển thị trên trang.
   { id: 'minhhung', name: 'Minh Hưng', number: null, avatar: 'assets/avatars/minhhung.jpg' },
 ];
 

@@ -1,7 +1,6 @@
 import { TEAM, PLAYERS, SLOTS, SLOT_LABELS, SLOT_TAGLINES, DEFAULT_LINEUP } from './data/roster.js';
 import { TACTICS, SCENARIOS } from './data/tactics.js';
 import { GOLDEN_RULES } from './data/rules.js';
-import { sanitizeLineup, swapPlayers, benchOf } from './engine.js';
 import { createPitch } from './pitch.js';
 import { buildTimeline, driftOpponents, finalScene, pickCorner, quietSide } from './anim.js';
 
@@ -15,23 +14,12 @@ const ARROW_MS = 550; // mũi tên vẽ xong rồi người/bóng mới chạy
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-// localStorage có thể bị chặn (private mode) → mọi truy cập đều bọc try/catch.
-const store = {
-  get(key) {
-    try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
-  },
-  set(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* bỏ qua */ }
-  },
-};
-
 const state = {
   tab: 'tactic',
   tacticId: TACTICS[0].id,
   phase: 'attack',
   scenarioId: SCENARIOS[0].id,
-  lineup: sanitizeLineup(store.get('htx.lineup'), PLAYERS, DEFAULT_LINEUP),
-  subPick: null, // id cầu thủ dự bị đang chờ vào sân
+  lineup: DEFAULT_LINEUP,
 };
 
 const pitch = createPitch($('#pitch'), { onTokenTap, onReplay: () => play() });
@@ -40,7 +28,7 @@ const pitch = createPitch($('#pitch'), { onTokenTap, onReplay: () => play() });
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   const tab = h.get('tab');
-  if (['tactic', 'scenario', 'team'].includes(tab) && tab !== state.tab) { state.tab = tab; state.subPick = null; }
+  if (['tactic', 'scenario', 'team'].includes(tab)) state.tab = tab;
   if (TACTICS.some(t => t.id === h.get('t'))) state.tacticId = h.get('t');
   if (['attack', 'defend'].includes(h.get('p'))) state.phase = h.get('p');
   if (SCENARIOS.some(s => s.id === h.get('s'))) state.scenarioId = h.get('s');
@@ -68,7 +56,7 @@ function frameKey() {
 }
 
 function dressPitch() {
-  pitch.dress({ lineup: state.lineup, playersById, captainId: TEAM.captainId, pickMode: Boolean(state.subPick) });
+  pitch.dress({ lineup: state.lineup, playersById, captainId: TEAM.captainId });
 }
 
 // ---------- Hoạt cảnh: màn che → từng người di chuyển theo chiến thuật ----------
@@ -151,7 +139,6 @@ function render() {
   if (isTeam) { stopPlayback(); renderTeam(); return; }
   renderPickers();
   dressPitch();
-  renderBench();
   renderInfo();
   if (frameKey() !== sceneKey) {
     sceneKey = frameKey();
@@ -179,20 +166,6 @@ function renderPickers() {
   el.querySelector('[aria-pressed="true"].chip')?.scrollIntoView({ block: 'nearest', inline: 'center' });
 }
 
-function renderBench() {
-  const bench = benchOf(state.lineup, PLAYERS);
-  const changed = SLOTS.some(s => state.lineup[s] !== DEFAULT_LINEUP[s]);
-  $('#bench').innerHTML = `
-    <span class="label">Dự bị:</span>
-    ${bench.map(p => `
-      <button class="sub-chip" data-sub="${p.id}" aria-pressed="${state.subPick === p.id}">
-        <img src="${p.avatar}" alt="">${p.name}${p.number ? ' #' + p.number : ''}
-      </button>`).join('') || '<span class="label">không có ai</span>'}
-    ${changed ? '<button class="ghost-btn" data-reset-lineup>↺ Đội hình chuẩn</button>' : ''}
-    ${state.subPick ? `<span class="hint">Chạm vào người trên sân để ${playersById[state.subPick].name} vào thay.</span>` : ''}
-  `;
-}
-
 function renderInfo() {
   const { title, phase, item } = current();
   const isTactic = state.tab === 'tactic';
@@ -218,11 +191,11 @@ function renderTeam() {
     </div>
 
     <div class="team-grid team-section">
-      ${PLAYERS.map(p => `
+      ${PLAYERS.filter(p => slotOf(p.id)).map(p => `
         <div class="player-card ${p.id === TEAM.captainId ? 'captain' : ''}">
           <img src="${p.avatar}" alt="${p.name}" loading="lazy">
           <div class="n">${p.name} ${p.number ? '#' + p.number : ''} ${p.id === TEAM.captainId ? '©' : ''}</div>
-          <div class="r">${slotOf(p.id) ? SLOT_LABELS[slotOf(p.id)] : 'Dự bị'}${p.id === TEAM.captainId ? ' · Đội trưởng' : ''}</div>
+          <div class="r">${SLOT_LABELS[slotOf(p.id)]}${p.id === TEAM.captainId ? ' · Đội trưởng' : ''}</div>
         </div>`).join('')}
     </div>
 
@@ -267,13 +240,6 @@ function openSheet(slot) {
 function closeSheet() { $('#sheet').hidden = true; }
 
 function onTokenTap(slot) {
-  if (state.subPick) {
-    state.lineup = swapPlayers(state.lineup, state.subPick, state.lineup[slot], PLAYERS);
-    state.subPick = null;
-    store.set('htx.lineup', state.lineup);
-    render();
-    return;
-  }
   openSheet(slot);
 }
 
@@ -281,12 +247,10 @@ function onTokenTap(slot) {
 document.addEventListener('click', e => {
   const t = e.target.closest('button');
   if (!t) return;
-  if (t.dataset.tab) { state.tab = t.dataset.tab; state.subPick = null; render(); window.scrollTo({ top: 0 }); }
+  if (t.dataset.tab) { state.tab = t.dataset.tab; render(); window.scrollTo({ top: 0 }); }
   else if (t.dataset.tactic) { state.tacticId = t.dataset.tactic; render(); }
   else if (t.dataset.phase) { state.phase = t.dataset.phase; render(); }
   else if (t.dataset.scenario) { state.scenarioId = t.dataset.scenario; render(); }
-  else if (t.dataset.sub) { state.subPick = state.subPick === t.dataset.sub ? null : t.dataset.sub; render(); }
-  else if ('resetLineup' in t.dataset) { state.lineup = { ...DEFAULT_LINEUP }; store.set('htx.lineup', state.lineup); render(); }
   else if ('close' in t.dataset) closeSheet();
 });
 

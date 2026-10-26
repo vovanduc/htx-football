@@ -86,7 +86,7 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
   }
 
   // Cập nhật mặt/tên theo lineup, không đụng vị trí.
-  function dress({ lineup, playersById, captainId, pickMode = false }) {
+  function dress({ lineup, playersById, captainId }) {
     for (const slot of SLOTS) {
       const t = tokens[slot];
       const p = playersById[lineup[slot]];
@@ -96,7 +96,6 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
       t.querySelector('.name').textContent = p.name;
       face.querySelector('.cap')?.remove();
       if (p.id === captainId) face.insertAdjacentHTML('beforeend', '<span class="cap" title="Đội trưởng">C</span>');
-      t.classList.toggle('pick', pickMode);
       t.setAttribute('aria-label', `${p.name}${p.number ? ' số ' + p.number : ''}`);
     }
   }

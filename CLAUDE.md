@@ -1,6 +1,6 @@
 # htx-football
 
-Static site (HTML/CSS/JS ES modules, no build). Data in `js/data/`, pure logic in `js/engine.js`, tests `npm test`.
+Static site (HTML/CSS/JS ES modules, no build). Data in `js/data/`, pure animation helpers in `js/anim.js`, tests `npm test`.
 
 ## Workflow (dcnet-workflow)
 - Startup: read `feature_list.json` → `progress.md` → `session-handoff.md`; run `./init.sh`; `git log --oneline -5`.

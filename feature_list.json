@@ -32,6 +32,16 @@
       "evidence": "2026-10-26: npm test 18/18; Playwright Chrome: 360/390/430/1366/1920 sân + chú thích trong viewport, scrollW = viewport; 0 nút <36px; 0 token bị che khi chạm ở 390x844, 360x640, 844x390 (ngang), 920x1250; hủy giữa chừng, đổi tab, thay người khi đang phát, reduced-motion đều đúng; mũi tên vẽ trước khi chạy. Review độc lập: 0 lỗi async, 4 lỗi layout đã sửa."
     },
     {
+      "id": "feat-005",
+      "name": "Bỏ khu dự bị",
+      "description": "Bỏ ghế dự bị + thay người (engine.js, localStorage lineup). Minh Hưng giữ trong roster + avatar nhưng không hiển thị (không có trong DEFAULT_LINEUP).",
+      "dependencies": [
+        "feat-004"
+      ],
+      "status": "done",
+      "evidence": "2026-10-26: npm test 12/12; Playwright: 'Minh Hưng' không có trong text tab Chiến thuật/Đội, .bench = 0, tab Đội 8 thẻ; regression mobile/desktop/hoạt cảnh/tap đều pass, 0 page error."
+    },
+    {
       "id": "feat-002",
       "name": "Deploy GitHub Pages",
       "description": "Repo public vovanduc/htx-football, Pages từ main root, URL trả 200 — chỉ sau khi user OK bản local",

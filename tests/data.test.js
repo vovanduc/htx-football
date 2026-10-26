@@ -13,6 +13,9 @@ test('roster: số áo không trùng, avatar tồn tại, đội trưởng có t
   for (const p of PLAYERS) assert.ok(existsSync(new URL(`../${p.avatar}`, import.meta.url)), p.avatar);
   assert.ok(PLAYERS.some(p => p.id === TEAM.captainId));
   assert.deepEqual(Object.keys(DEFAULT_LINEUP).sort(), [...SLOTS].sort());
+  const ids = new Set(PLAYERS.map(p => p.id));
+  for (const id of Object.values(DEFAULT_LINEUP)) assert.ok(ids.has(id), `lineup trỏ tới ${id} không có trong danh sách`);
+  assert.equal(new Set(Object.values(DEFAULT_LINEUP)).size, SLOTS.length, 'không ai giữ 2 vị trí');
 });
 
 test('đủ 6 chiến thuật + 3 tình huống, id duy nhất', () => {
