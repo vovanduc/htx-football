@@ -15,9 +15,9 @@ test('roster: số áo không trùng, avatar tồn tại, đội trưởng có t
   assert.deepEqual(Object.keys(DEFAULT_LINEUP).sort(), [...SLOTS].sort());
 });
 
-test('đủ 6 chiến thuật + 8 tình huống, id duy nhất', () => {
+test('đủ 6 chiến thuật + 3 tình huống, id duy nhất', () => {
   assert.equal(TACTICS.length, 6);
-  assert.equal(SCENARIOS.length, 8);
+  assert.equal(SCENARIOS.length, 3);
   const ids = [...TACTICS, ...SCENARIOS].map(t => t.id);
   assert.equal(new Set(ids).size, ids.length);
   for (const t of TACTICS) {

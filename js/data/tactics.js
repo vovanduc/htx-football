@@ -37,8 +37,8 @@ export const TACTICS = [
         us: { GK: [50, 93], LB: [26, 80], CB: [50, 83], RB: [74, 80], LM: [28, 64], CM: [50, 66], RM: [72, 64], ST: [50, 46] },
         them: [[50, 8], [30, 40], [50, 38], [70, 40], [20, 58], [50, 55], [80, 58], [50, 74]],
         arrows: [
-          { from: 'CM', to: [50, 59], kind: 'run' },
-          { from: 'ST', to: [50, 50], kind: 'run' },
+          { from: 'CM', to: [50, 60], kind: 'run' },
+          { from: 'ST', to: [53, 48], kind: 'run' },
         ],
         duties: {
           GK: 'Chỉ huy hàng thủ, la tên người phải kèm.',
@@ -189,8 +189,8 @@ export const TACTICS = [
         us: { GK: [50, 90], LB: [28, 74], CB: [50, 77], RB: [72, 74], LM: [32, 56], CM: [46, 58], RM: [68, 58], ST: [48, 44] },
         them: [[50, 6], [30, 30], [50, 28], [70, 30], [22, 52], [40, 50], [78, 52], [52, 68]],
         arrows: [
-          { from: 'CM', to: [42, 54], kind: 'run' },
-          { from: 'ST', to: [42, 47], kind: 'run' },
+          { from: 'CM', to: [43, 55], kind: 'run' },
+          { from: 'ST', to: [38, 45], kind: 'run' },
         ],
         duties: {
           GK: 'Đứng cao, đọc tình huống bóng dài.',
@@ -241,8 +241,8 @@ export const TACTICS = [
         us: { GK: [54, 92], LB: [36, 78], CB: [62, 78], RB: [80, 70], LM: [36, 62], CM: [62, 64], RM: [78, 58], ST: [54, 46] },
         them: [[50, 8], [30, 38], [50, 36], [70, 38], [82, 54], [50, 52], [22, 56], [60, 72]],
         arrows: [
-          { from: 'RM', to: [81, 56], kind: 'run' },
-          { from: 'RB', to: [82, 62], kind: 'run' },
+          { from: 'RM', to: [80, 55], kind: 'run' },
+          { from: 'RB', to: [87, 64], kind: 'run' },
         ],
         duties: {
           GK: 'Dịch về cột gần phía bóng.',
@@ -310,86 +310,6 @@ export const TACTICS = [
 
 export const SCENARIOS = [
   {
-    id: 'bong-canh-trai',
-    name: 'Bóng ở cánh trái',
-    phase: 'attack',
-    frame: {
-      ball: [14, 40],
-      us: { GK: [50, 88], LB: [16, 56], CB: [46, 66], RB: [70, 64], LM: [14, 40], CM: [32, 40], RM: [70, 28], ST: [34, 22] },
-      them: [[50, 5], [28, 20], [48, 18], [66, 22], [18, 36], [42, 36], [70, 40], [50, 58]],
-      arrows: [
-        { from: 'LB', to: [10, 26], kind: 'run' },
-        { from: 'LM', to: [31, 41], kind: 'pass' },
-        { from: 'ST', to: [40, 14], kind: 'run' },
-        { from: 'RM', to: [62, 14], kind: 'run' },
-      ],
-      duties: {
-        GK: 'Đứng cao, quan sát phản công.',
-        LB: 'Chạy chồng biên hoặc đứng sau làm điểm chuyền về.',
-        CB: 'Dịch sang trái, chặn đường phản công.',
-        RB: 'Thu vào trong cùng CB (giữ 2 người ở lại).',
-        LM: '3 lựa chọn: chồng biên cho LB, bật tường với CM, hoặc căng ngang.',
-        CM: 'Đứng gần tạo tam giác với LM + LB.',
-        RM: 'Chạy vào cột xa. Đừng đứng ở biên phải ngắm cảnh.',
-        ST: 'Đánh đầu/đá cột gần.',
-      },
-      joke: 'Tam giác ở cánh trái: LB, LM, CM. Thiếu một người là thành đường thẳng đi vào ngõ cụt.',
-    },
-  },
-  {
-    id: 'bong-canh-phai',
-    name: 'Bóng ở cánh phải',
-    phase: 'attack',
-    frame: {
-      ball: [86, 40],
-      us: { GK: [50, 88], LB: [30, 64], CB: [54, 66], RB: [84, 56], LM: [30, 28], CM: [68, 40], RM: [86, 40], ST: [66, 22] },
-      them: [[50, 5], [34, 22], [52, 18], [72, 20], [30, 40], [58, 36], [82, 36], [50, 58]],
-      arrows: [
-        { from: 'RB', to: [90, 26], kind: 'run' },
-        { from: 'RM', to: [69, 41], kind: 'pass' },
-        { from: 'ST', to: [60, 14], kind: 'run' },
-        { from: 'LM', to: [38, 14], kind: 'run' },
-      ],
-      duties: {
-        GK: 'Đứng cao, quan sát phản công.',
-        LB: 'Thu vào trong cùng CB (giữ 2 người ở lại).',
-        CB: 'Dịch sang phải, chặn đường phản công.',
-        RB: 'Chạy chồng biên hoặc đứng sau làm điểm chuyền về.',
-        LM: 'Chạy vào cột xa. Đừng đứng ở biên trái ngắm cảnh.',
-        CM: 'Đứng gần tạo tam giác với RM + RB.',
-        RM: '3 lựa chọn: chồng biên cho RB, bật tường với CM, hoặc căng ngang.',
-        ST: 'Đánh đầu/đá cột gần.',
-      },
-      joke: 'Cánh phải lên bóng, cả đội nghiêng theo như xe buýt vào cua.',
-    },
-  },
-  {
-    id: 'bong-trung-lo',
-    name: 'Bóng ở trung lộ (tấn công)',
-    phase: 'attack',
-    frame: {
-      ball: [50, 40],
-      us: { GK: [50, 88], LB: [22, 58], CB: [50, 66], RB: [78, 58], LM: [20, 28], CM: [50, 40], RM: [80, 28], ST: [50, 22] },
-      them: [[50, 5], [34, 20], [50, 18], [66, 20], [30, 36], [50, 32], [70, 36], [50, 56]],
-      arrows: [
-        { from: 'CM', to: [50, 25], kind: 'pass' },
-        { from: 'LM', to: [36, 14], kind: 'run' },
-        { from: 'RM', to: [64, 14], kind: 'run' },
-      ],
-      duties: {
-        GK: 'Đứng cao, quan sát phản công.',
-        LB: 'Dâng nhẹ, sẵn sàng nhận chuyền về.',
-        CB: 'Ở lại, kèm tiền đạo đối phương.',
-        RB: 'Dâng nhẹ, sẵn sàng nhận chuyền về.',
-        LM: 'Chạy chéo từ biên vào khe giữa trung vệ và hậu vệ biên.',
-        CM: 'Chuyền vào chân 9 rồi chạy tiếp lên, chơi 1-2.',
-        RM: 'Chạy chéo từ biên vào khe giữa trung vệ và hậu vệ biên.',
-        ST: 'Quay lưng làm tường, nhả cho người chạy chéo.',
-      },
-      joke: 'Đường chuyền vào chân 9 là "ủy quyền ký thay": 9 chỉ cần nhả đúng người.',
-    },
-  },
-  {
     id: 'thu-mon-phat-bong',
     name: 'Thủ môn phát bóng',
     phase: 'attack',
@@ -439,56 +359,6 @@ export const SCENARIOS = [
         ST: 'Chạy cắt cột gần.',
       },
       joke: 'Ai đá phạt góc mà bóng không qua nổi người đầu tiên thì bao nước cả đội.',
-    },
-  },
-  {
-    id: 'doi-thu-bong-canh',
-    name: 'Đối thủ có bóng ở cánh',
-    phase: 'defend',
-    frame: {
-      ball: [20, 62],
-      us: { GK: [46, 92], LB: [22, 68], CB: [44, 80], RB: [64, 80], LM: [26, 58], CM: [40, 66], RM: [62, 62], ST: [46, 46] },
-      them: [[50, 8], [30, 38], [50, 36], [70, 40], [20, 62], [48, 58], [78, 58], [50, 76]],
-      arrows: [
-        { from: 'LB', to: [21, 65], kind: 'run' },
-        { from: 'LM', to: [22, 59], kind: 'run' },
-      ],
-      duties: {
-        GK: 'Dịch về cột gần, la to "ép ra biên!".',
-        LB: 'Áp sát từ phía trong, ép người cầm bóng chạy dọc biên.',
-        CB: 'Kèm tiền đạo, đứng chắn đường căng ngang.',
-        RB: 'Thu vào cột xa, canh người chạy cột xa.',
-        LM: 'Lùi về kẹp người cầm bóng cùng LB.',
-        CM: 'Chặn đường chuyền vào trong (khu giữa).',
-        RM: 'Thu hẳn vào trung lộ.',
-        ST: 'Chặn đường chuyền về cho trung vệ đối phương.',
-      },
-      joke: 'Nguyên tắc vàng: ép ra biên, không cho cắt vào trong. Vạch biên chưa thua ai bao giờ.',
-    },
-  },
-  {
-    id: 'doi-thu-bong-trung-lo',
-    name: 'Đối thủ có bóng ở trung lộ',
-    phase: 'defend',
-    frame: {
-      ball: [50, 56],
-      us: { GK: [50, 93], LB: [34, 80], CB: [50, 82], RB: [66, 80], LM: [34, 64], CM: [50, 62], RM: [66, 64], ST: [50, 48] },
-      them: [[50, 8], [30, 40], [50, 38], [70, 40], [22, 58], [50, 56], [78, 58], [50, 76]],
-      arrows: [
-        { from: 'CM', to: [50, 59], kind: 'run' },
-        { from: 'ST', to: [50, 52], kind: 'run' },
-      ],
-      duties: {
-        GK: 'Đứng đúng vị trí, chuẩn bị cho cú sút xa.',
-        LB: 'Thu hẹp, cùng CB làm hàng 3 sát nhau.',
-        CB: 'Không lao lên! Giữ vị trí, kèm tiền đạo.',
-        RB: 'Thu hẹp, cùng CB làm hàng 3 sát nhau.',
-        LM: 'Thu vào trong, khóa đường chuyền ra cánh.',
-        CM: 'Đối mặt, chặn hướng sút, không cho xuyên qua.',
-        RM: 'Thu vào trong, khóa đường chuyền ra cánh.',
-        ST: 'Lùi về ép từ sau lưng, kẹp cùng CM.',
-      },
-      joke: 'Trung lộ là cửa chính nhà mình: đóng chặt, ai muốn vào thì đi vòng ra biên.',
     },
   },
   {

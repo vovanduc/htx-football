@@ -35,3 +35,22 @@ export function finalScene(frame, { factor = 0.25, max = 4 } = {}) {
   }
   return { us, them, ball };
 }
+
+// Chọn góc sân trống nhất cho nút "Xem lại" (xa người và bóng nhất), bỏ qua góc phía chú thích.
+const CORNERS = { tl: [8, 5], tr: [92, 5], bl: [8, 95], br: [92, 95] };
+export function pickCorner(points, captionSide) {
+  let best = null;
+  for (const [name, [cx, cy]] of Object.entries(CORNERS)) {
+    if (name[0] === captionSide[0]) continue; // 't'op / 'b'ottom
+    const d = Math.min(...points.map(([x, y]) => Math.hypot(x - cx, y - cy)));
+    if (!best || d > best.d) best = { name, d };
+  }
+  return best.name;
+}
+
+// Đặt chú thích ở dải trên hay dưới: phía có ít người hơn trong 20% mép sân.
+export function quietSide(points) {
+  const top = points.filter(([, y]) => y < 20).length;
+  const bottom = points.filter(([, y]) => y > 80).length;
+  return top < bottom ? 'top' : 'bottom';
+}

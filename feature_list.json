@@ -21,6 +21,17 @@
       "evidence": "2026-10-26: npm test 11/11; Playwright Chrome 360/390/430: scrollWidth = viewport, 0 nút <36px (nút/chip/select/sheet = 44px), 0 token chồng nhau trên 20 frame, tap thay người OK, 0 page error; desktop 1366 tab Đội không hiện sa bàn."
     },
     {
+      "id": "feat-004",
+      "name": "Sa bàn động",
+      "description": "Màn che loading, mũi tên vẽ trước rồi cầu thủ chạy/bóng lăn theo arrows, chú thích nhiệm vụ, xem lại; bỏ bảng nhiệm vụ, bỏ 'Tôi là', bỏ 5 tình huống trùng (còn 3), bóng không xoay, sân vừa màn hình",
+      "spec": "docs/specs/2026-10-26-sa-ban-dong-design.md",
+      "dependencies": [
+        "feat-003"
+      ],
+      "status": "done",
+      "evidence": "2026-10-26: npm test 18/18; Playwright Chrome: 360/390/430/1366/1920 sân + chú thích trong viewport, scrollW = viewport; 0 nút <36px; 0 token bị che khi chạm ở 390x844, 360x640, 844x390 (ngang), 920x1250; hủy giữa chừng, đổi tab, thay người khi đang phát, reduced-motion đều đúng; mũi tên vẽ trước khi chạy. Review độc lập: 0 lỗi async, 4 lỗi layout đã sửa."
+    },
+    {
       "id": "feat-002",
       "name": "Deploy GitHub Pages",
       "description": "Repo public vovanduc/htx-football, Pages từ main root, URL trả 200 — chỉ sau khi user OK bản local",

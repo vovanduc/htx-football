@@ -3,7 +3,7 @@ import { TACTICS, SCENARIOS } from './data/tactics.js';
 import { GOLDEN_RULES } from './data/rules.js';
 import { sanitizeLineup, swapPlayers, benchOf } from './engine.js';
 import { createPitch } from './pitch.js';
-import { buildTimeline, driftOpponents, finalScene } from './anim.js';
+import { buildTimeline, driftOpponents, finalScene, pickCorner, quietSide } from './anim.js';
 
 const $ = sel => document.querySelector(sel);
 const playersById = Object.fromEntries(PLAYERS.map(p => [p.id, p]));
@@ -30,7 +30,6 @@ const state = {
   tacticId: TACTICS[0].id,
   phase: 'attack',
   scenarioId: SCENARIOS[0].id,
-  me: playersById[store.get('htx.me')] ? store.get('htx.me') : null,
   lineup: sanitizeLineup(store.get('htx.lineup'), PLAYERS, DEFAULT_LINEUP),
   subPick: null, // id cầu thủ dự bị đang chờ vào sân
 };
@@ -69,7 +68,7 @@ function frameKey() {
 }
 
 function dressPitch() {
-  pitch.dress({ lineup: state.lineup, playersById, me: state.me, captainId: TEAM.captainId, pickMode: Boolean(state.subPick) });
+  pitch.dress({ lineup: state.lineup, playersById, captainId: TEAM.captainId, pickMode: Boolean(state.subPick) });
 }
 
 // ---------- Hoạt cảnh: màn che → từng người di chuyển theo chiến thuật ----------
@@ -95,8 +94,10 @@ async function play() {
   const end = finalScene(frame);
   const done = () => {
     pitch.highlight(null);
-    pitch.setCaption(`<span class="cap-joke">😆 ${frame.joke}</span>`, captionSide(end.ball[1], end.ball[1]));
-    pitch.showReplay(true);
+    const pts = [...Object.values(end.us), ...end.them, end.ball];
+    const side = quietSide(pts);
+    pitch.setCaption(`<span class="cap-joke">😆 ${frame.joke}</span>`, side);
+    pitch.showReplay(pickCorner(pts, side));
   };
 
   if (reduceMotion.matches) {
@@ -257,7 +258,6 @@ function openSheet(slot) {
     <div class="task"><b>${title} · ${PHASE_LABEL[phase]}</b>${frame.duties[slot]}</div>
     <div class="actions">
       <button class="btn secondary" data-close>Đóng</button>
-      ${p.id === state.me ? '' : `<button class="btn" data-set-me="${p.id}">Đây là tôi</button>`}
     </div>
   `;
   $('#sheet').hidden = false;
@@ -277,12 +277,6 @@ function onTokenTap(slot) {
   openSheet(slot);
 }
 
-function setMe(id) {
-  state.me = playersById[id] ? id : null;
-  store.set('htx.me', state.me);
-  $('#me-select').value = state.me ?? '';
-}
-
 // ---------- Sự kiện ----------
 document.addEventListener('click', e => {
   const t = e.target.closest('button');
@@ -293,18 +287,11 @@ document.addEventListener('click', e => {
   else if (t.dataset.scenario) { state.scenarioId = t.dataset.scenario; render(); }
   else if (t.dataset.sub) { state.subPick = state.subPick === t.dataset.sub ? null : t.dataset.sub; render(); }
   else if ('resetLineup' in t.dataset) { state.lineup = { ...DEFAULT_LINEUP }; store.set('htx.lineup', state.lineup); render(); }
-  else if (t.dataset.setMe) { setMe(t.dataset.setMe); closeSheet(); render(); }
   else if ('close' in t.dataset) closeSheet();
 });
 
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
-
-const meSelect = $('#me-select');
-meSelect.innerHTML = '<option value="">— chọn —</option>' +
-  PLAYERS.map(p => `<option value="${p.id}">${p.name}${p.number ? ' #' + p.number : ''}</option>`).join('');
-meSelect.value = state.me ?? '';
-meSelect.addEventListener('change', () => { setMe(meSelect.value); render(); });
 
 window.addEventListener('hashchange', () => { readHash(); render(); });
 

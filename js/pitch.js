@@ -86,7 +86,7 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
   }
 
   // Cập nhật mặt/tên theo lineup, không đụng vị trí.
-  function dress({ lineup, playersById, me, captainId, pickMode = false }) {
+  function dress({ lineup, playersById, captainId, pickMode = false }) {
     for (const slot of SLOTS) {
       const t = tokens[slot];
       const p = playersById[lineup[slot]];
@@ -96,7 +96,6 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
       t.querySelector('.name').textContent = p.name;
       face.querySelector('.cap')?.remove();
       if (p.id === captainId) face.insertAdjacentHTML('beforeend', '<span class="cap" title="Đội trưởng">C</span>');
-      t.classList.toggle('me', p.id === me);
       t.classList.toggle('pick', pickMode);
       t.setAttribute('aria-label', `${p.name}${p.number ? ' số ' + p.number : ''}`);
     }
@@ -110,7 +109,6 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
     }
     them.forEach((pt, i) => place(opps[i], pt, ms));
     place(ball, b, ms);
-    ball.classList.remove('rolling');
   }
 
   function moveToken(slot, pt, ms) {
@@ -121,9 +119,7 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
   }
 
   function moveBall(pt, ms) {
-    ball.classList.add('rolling');
     place(ball, pt, ms);
-    setTimeout(() => ball.classList.remove('rolling'), ms);
   }
 
   function moveOpps(pts, ms) {
@@ -171,11 +167,12 @@ export function createPitch(root, { onTokenTap, onReplay } = {}) {
     caption.hidden = !html;
     caption.innerHTML = html ?? '';
     caption.classList.toggle('top', where === 'top');
-    replay.classList.toggle('low', where === 'top');
   }
 
-  function showReplay(on) {
-    replay.hidden = !on;
+  // corner: 'tl' | 'tr' | 'bl' | 'br' để hiện ở góc đó, falsy để ẩn.
+  function showReplay(corner) {
+    replay.hidden = !corner;
+    if (corner) replay.dataset.corner = corner;
   }
 
   return { dress, setScene, showArrow, clearArrows, moveToken, moveBall, moveOpps, highlight, showCurtain, hideCurtain, setCaption, showReplay };

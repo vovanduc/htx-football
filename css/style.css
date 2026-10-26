@@ -11,7 +11,6 @@
   --red: #e5484d;
   --grass-1: #1f7a3c;
   --grass-2: #23873f;
-  --token: clamp(42px, 11.5vw, 54px);
   --tap: 44px;
   --chrome: 250px; /* header + tab + chip + nút pha trên mobile */
   --radius: 14px;
@@ -43,11 +42,6 @@ img { display: block; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .brand h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
 .brand .sub { margin: 0; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.me-pick { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
-.me-pick select {
-  background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
-  padding: 6px 8px; max-width: 120px; min-height: var(--tap);
-}
 
 /* Tabs */
 .tabs {
@@ -86,8 +80,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
 .pitch {
   position: relative; margin: 0 auto;
   /* Luôn thấy trọn sân: rộng tối đa nhưng không cao quá phần màn hình còn lại. */
-  width: min(100%, 640px, calc((100svh - var(--chrome)) * .68));
-  aspect-ratio: 68 / 100; border-radius: var(--radius); overflow: hidden;
+  width: min(100%, 640px, max(300px, calc((100svh - var(--chrome)) * .68)));
+  aspect-ratio: 68 / 100;
+  /* Cỡ token theo bề ngang sân → tỉ lệ người/sân giữ nguyên trên mọi màn hình. */
+  container-type: inline-size;
+  --token: clamp(30px, 11.5cqi, 54px); border-radius: var(--radius); overflow: hidden;
   background: repeating-linear-gradient(180deg, var(--grass-1) 0 10%, var(--grass-2) 10% 20%);
   box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.08);
   touch-action: manipulation; user-select: none;
@@ -116,13 +113,12 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
   background: var(--gold); color: #3a2a00; font-size: 10px; font-weight: 900; display: grid; place-items: center;
 }
 .token .name {
+  pointer-events: none; /* chỉ mặt cầu thủ nhận chạm, nhãn tên không che người khác */
   display: block; margin-top: 3px; font-size: 11px; font-weight: 700; line-height: 1.1;
   background: rgba(7,31,26,.82); border-radius: 6px; padding: 2px 4px;
   white-space: nowrap; position: relative; left: 50%; transform: translateX(-50%); width: max-content; max-width: 84px;
   overflow: hidden; text-overflow: ellipsis;
 }
-.token.me .face { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(245,197,66,.35), 0 3px 8px rgba(0,0,0,.45); }
-.token.me .name { background: var(--gold); color: #2b2100; }
 .token.pick .face { animation: pulse 1s ease-in-out infinite; }
 
 .opp {
@@ -137,11 +133,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
 .token.active { z-index: 7; }
 .token.active .face { border-color: #fff; box-shadow: 0 0 0 5px rgba(255,255,255,.35), 0 6px 14px rgba(0,0,0,.5); }
 .token.active .name { background: #fff; color: #0b3d33; }
-.ball.rolling { animation: roll .5s linear infinite; }
 .ball { transition-timing-function: cubic-bezier(.2,.7,.3,1); }
 
 .caption {
   position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 12;
+  pointer-events: none; /* không chặn chạm vào cầu thủ phía dưới */
   display: flex; align-items: center; gap: 10px;
   background: rgba(7,31,26,.9); border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
   padding: 8px 10px; font-size: 13.5px; line-height: 1.35; backdrop-filter: blur(4px);
@@ -158,7 +154,9 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
   background: var(--gold); color: #2b2100; box-shadow: 0 4px 12px rgba(0,0,0,.35);
   animation: capIn .3s ease;
 }
-.replay.low { top: auto; bottom: 8px; }
+.replay[data-corner="tl"] { right: auto; left: 8px; }
+.replay[data-corner="bl"] { top: auto; bottom: 8px; right: auto; left: 8px; }
+.replay[data-corner="br"] { top: auto; bottom: 8px; }
 
 .curtain {
   position: absolute; inset: 0; z-index: 15; display: grid; place-content: center; justify-items: center; gap: 6px;
@@ -251,7 +249,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes dashy { to { stroke-dasharray: 2 1.2; } }
 @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
-@keyframes roll { to { rotate: 360deg; } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes capIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes whistle { from { opacity: 0; transform: scale(.6); } 60% { transform: scale(1.15); } to { opacity: 1; transform: scale(1); } }
@@ -265,7 +262,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
     display: grid; grid-template-columns: auto minmax(300px, 400px); grid-template-rows: auto auto 1fr; justify-content: center;
     gap: 0 28px; align-items: start;
   }
-  #board-view .pitch-wrap { grid-column: 1; grid-row: 1 / span 3; width: min(640px, calc((100svh - var(--chrome)) * .68)); }
+  #board-view .pitch-wrap { grid-column: 1; grid-row: 1 / span 3; width: min(640px, max(300px, calc((100svh - var(--chrome)) * .68)), calc(100vw - 32px - 28px - 300px)); }
   #board-view .pitch { width: 100%; }
   #board-view .pickers { grid-column: 2; grid-row: 1; }
   #board-view .pickers .chips { flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; padding-right: 0; }
@@ -274,6 +271,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
   .tabs { max-width: 520px; margin-left: auto; margin-right: auto; }
 }
 
+
+/* Màn hình thấp (điện thoại xoay ngang): header không dính để khỏi che sân */
+@media (max-height: 500px) {
+  .top { position: static; }
+}
 
 /* Mobile: sân gần sát mép, header gọn */
 @media (max-width: 599px) {
@@ -288,7 +290,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .token.running .face, .ball.rolling, .curtain .spin { animation: none; }
+  .token.running .face, .curtain .spin { animation: none; }
   .pitch svg.arrows line.live { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
   .token, .opp, .ball { transition: none; }
   }

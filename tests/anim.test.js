@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildTimeline, driftOpponents, finalScene } from '../js/anim.js';
+import { buildTimeline, driftOpponents, finalScene, pickCorner, quietSide } from '../js/anim.js';
 import { TACTICS, allFrames } from '../js/data/tactics.js';
 
 test('buildTimeline: một bước cho mỗi mũi tên, đúng thứ tự', () => {
@@ -57,4 +57,16 @@ test('finalScene: runner tới đích, bóng ở điểm chuyền cuối, đối
   assert.deepEqual(end.ball, [40, 10]);
   assert.deepEqual(end.them, driftOpponents([[50, 30]], [40, 10], 0.25, 4));
   assert.deepEqual(frame.us.ST, [50, 20], 'không mutate');
+});
+
+test('pickCorner: chọn góc xa người nhất, không trùng phía chú thích', () => {
+  const pts = [[90, 6], [10, 90]];
+  assert.equal(pickCorner(pts, 'bottom'), 'tl');
+  assert.equal(pickCorner(pts, 'top'), 'br');
+});
+
+test('quietSide: chú thích né phía đông người', () => {
+  assert.equal(quietSide([[50, 90], [40, 85], [50, 10]]), 'top');
+  assert.equal(quietSide([[50, 10], [40, 15], [50, 90]]), 'bottom');
+  assert.equal(quietSide([]), 'bottom');
 });
