@@ -11,6 +11,16 @@
       "evidence": "2026-10-26: npm test 13/13 pass; ./init.sh pass; Playwright Chrome 390x844: scrollWidth=390, 0 page errors, swap Minh Hưng→ST lưu qua reload, quiz kéo-thả chấm điểm, 0/30 lượt token bị đè, đổi Tôi là giữ câu hỏi; desktop 1366 OK. Review độc lập: 8 finding, đã sửa cả 8. Merge ff vào main (local)."
     },
     {
+      "id": "feat-003",
+      "name": "Chỉnh UI theo feedback + rà mobile",
+      "description": "Bỏ 'Sân 7 miền Nam' ở subtitle, footer 'Vui là chính', bỏ tab Thử thách + quiz, bỏ Bài học sau trận, 'Đội hình dự kiến' lên đầu tab Đội, sửa tab Đội vẫn hiện sa bàn trên desktop, tap target ≥44px, gợi ý chạm",
+      "dependencies": [
+        "feat-001"
+      ],
+      "status": "done",
+      "evidence": "2026-10-26: npm test 11/11; Playwright Chrome 360/390/430: scrollWidth = viewport, 0 nút <36px (nút/chip/select/sheet = 44px), 0 token chồng nhau trên 20 frame, tap thay người OK, 0 page error; desktop 1366 tab Đội không hiện sa bàn."
+    },
+    {
       "id": "feat-002",
       "name": "Deploy GitHub Pages",
       "description": "Repo public vovanduc/htx-football, Pages từ main root, URL trả 200 — chỉ sau khi user OK bản local",

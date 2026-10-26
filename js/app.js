@@ -1,9 +1,8 @@
 import { TEAM, PLAYERS, SLOTS, SLOT_LABELS, SLOT_TAGLINES, DEFAULT_LINEUP } from './data/roster.js';
 import { TACTICS, SCENARIOS } from './data/tactics.js';
-import { LESSONS, GOLDEN_RULES } from './data/lessons.js';
+import { GOLDEN_RULES } from './data/rules.js';
 import { sanitizeLineup, swapPlayers, benchOf } from './engine.js';
 import { createPitch } from './pitch.js';
-import { createQuiz } from './quiz.js';
 
 const $ = sel => document.querySelector(sel);
 const playersById = Object.fromEntries(PLAYERS.map(p => [p.id, p]));
@@ -30,19 +29,12 @@ const state = {
 };
 
 const pitch = createPitch($('#pitch'), { onTokenTap });
-const quiz = createQuiz({
-  pitch,
-  bar: $('#quiz-bar'),
-  info: $('#info'),
-  getCtx: () => ({ lineup: state.lineup, me: state.me, playersById }),
-  renderFrame: (frame, opts) => renderPitch(frame, opts),
-});
 
 // ---------- URL hash: chia sẻ link thẳng tới chiến thuật/pha trong Zalo ----------
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   const tab = h.get('tab');
-  if (['tactic', 'scenario', 'quiz', 'team'].includes(tab) && tab !== state.tab) { state.tab = tab; state.subPick = null; }
+  if (['tactic', 'scenario', 'team'].includes(tab) && tab !== state.tab) { state.tab = tab; state.subPick = null; }
   if (TACTICS.some(t => t.id === h.get('t'))) state.tacticId = h.get('t');
   if (['attack', 'defend'].includes(h.get('p'))) state.phase = h.get('p');
   if (SCENARIOS.some(s => s.id === h.get('s'))) state.scenarioId = h.get('s');
@@ -77,8 +69,6 @@ function renderPitch(frame, opts = {}) {
 }
 
 // ---------- Render ----------
-let quizRunning = false;
-
 function render() {
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)));
   const isTeam = state.tab === 'team';
@@ -86,15 +76,6 @@ function render() {
   $('#team-view').hidden = !isTeam;
   writeHash();
 
-  if (state.tab === 'quiz') {
-    $('#pickers').innerHTML = '';
-    $('#bench').innerHTML = '';
-    // Đổi "Tôi là" giữa chừng không được thay câu hỏi đang làm.
-    if (!quizRunning) { quizRunning = true; quiz.start(); }
-    return;
-  }
-  quiz.stop();
-  quizRunning = false;
   if (isTeam) { renderTeam(); return; }
   renderPickers();
   const { frame } = current();
@@ -164,7 +145,7 @@ function renderInfo() {
       </ul>
     </div>
     <div class="legend">
-      <span><i></i>Chạy chỗ</span><span><i class="pass"></i>Chuyền bóng</span><span><i class="opp"></i>Đội bạn</span><span>Chạm vào cầu thủ để xem nhiệm vụ</span>
+      <span><i></i>Chạy chỗ</span><span><i class="pass"></i>Chuyền bóng</span><span><i class="opp"></i>Đội bạn</span>
     </div>
   `;
 }
@@ -172,7 +153,12 @@ function renderInfo() {
 function renderTeam() {
   const slotOf = id => SLOTS.find(s => state.lineup[s] === id);
   $('#team-view').innerHTML = `
-    <div class="team-grid">
+    <div class="card formation">
+      <h2>Đội hình dự kiến</h2>
+      <img src="assets/team/formation-ref.jpg" alt="Đội hình dự kiến 3-2-2" style="width:100%;border-radius:10px">
+    </div>
+
+    <div class="team-grid team-section">
       ${PLAYERS.map(p => `
         <div class="player-card ${p.id === TEAM.captainId ? 'captain' : ''}">
           <img src="${p.avatar}" alt="${p.name}" loading="lazy">
@@ -194,20 +180,6 @@ function renderTeam() {
       <ol class="rules">${GOLDEN_RULES.map(r => `<li>${r}</li>`).join('')}</ol>
     </div>
 
-    <div class="team-section card">
-      <h2>Bài học sau trận</h2>
-      ${LESSONS.length ? LESSONS.map(l => `
-        <div class="lesson">
-          <div class="d">${l.date} · vs ${l.opponent} · ${l.result}</div>
-          <ul>${l.notes.map(n => `<li>${n}</li>`).join('')}</ul>
-        </div>`).join('<hr style="border-color:var(--line)">')
-      : '<p class="empty">Chưa có bài học nào. Đá xong trận đầu, cả đội rút kinh nghiệm rồi ghi vào đây nhé.</p>'}
-    </div>
-
-    <div class="team-section card">
-      <h2>Sơ đồ gốc của anh Cường</h2>
-      <img src="assets/team/formation-ref.jpg" alt="Sơ đồ đội hình 8 người 3-2-2" style="width:100%;border-radius:10px" loading="lazy">
-    </div>
   `;
 }
 
@@ -237,7 +209,6 @@ function openSheet(slot) {
 function closeSheet() { $('#sheet').hidden = true; }
 
 function onTokenTap(slot) {
-  if (state.tab === 'quiz') return;
   if (state.subPick) {
     state.lineup = swapPlayers(state.lineup, state.subPick, state.lineup[slot], PLAYERS);
     state.subPick = null;

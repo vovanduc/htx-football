@@ -71,9 +71,7 @@ export function createPitch(root, { onTokenTap } = {}) {
     tokens[slot] = b;
   }
 
-  let ghost = null;
-
-  function render(frame, { lineup, playersById, me, captainId, showArrows = true, hideSlot = null, pickMode = false }) {
+  function render(frame, { lineup, playersById, me, captainId, pickMode = false }) {
     for (const slot of SLOTS) {
       const t = tokens[slot];
       const p = playersById[lineup[slot]];
@@ -85,52 +83,31 @@ export function createPitch(root, { onTokenTap } = {}) {
       if (p.id === captainId) face.insertAdjacentHTML('beforeend', '<span class="cap" title="Đội trưởng">C</span>');
       t.classList.toggle('me', p.id === me);
       t.classList.toggle('pick', pickMode);
-      t.hidden = slot === hideSlot;
       t.setAttribute('aria-label', `${p.name}${p.number ? ' số ' + p.number : ''}`);
-      if (slot !== hideSlot) place(t, frame.us[slot]);
+      place(t, frame.us[slot]);
     }
     frame.them.forEach((pt, i) => place(opps[i], pt));
     place(ball, frame.ball);
-    drawArrows(showArrows ? frame : null);
+    drawArrows(frame);
   }
 
   function drawArrows(frame) {
     const g = document.createElementNS(SVG_NS, 'g');
-    if (frame) {
-      for (const a of frame.arrows) {
-        const [x1, y1] = frame.us[a.from];
-        const [x2, y2] = a.to;
-        const line = document.createElementNS(SVG_NS, 'line');
-        line.setAttribute('x1', x1 * W / 100);
-        line.setAttribute('y1', y1);
-        line.setAttribute('x2', x2 * W / 100);
-        line.setAttribute('y2', y2);
-        line.setAttribute('class', a.kind);
-        line.setAttribute('marker-end', `url(#m-${a.kind})`);
-        g.append(line);
-      }
+    for (const a of frame.arrows) {
+      const [x1, y1] = frame.us[a.from];
+      const [x2, y2] = a.to;
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', x1 * W / 100);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2 * W / 100);
+      line.setAttribute('y2', y2);
+      line.setAttribute('class', a.kind);
+      line.setAttribute('marker-end', `url(#m-${a.kind})`);
+      g.append(line);
     }
     // Thay <g> mới để animation fade-in chạy lại mỗi lần đổi frame.
     arrowSvg.querySelector('g').replaceWith(g);
   }
 
-  function toPct(clientX, clientY) {
-    const r = root.getBoundingClientRect();
-    return [((clientX - r.left) / r.width) * 100, ((clientY - r.top) / r.height) * 100];
-  }
-
-  function showGhost(pt) {
-    clearGhost();
-    ghost = document.createElement('div');
-    ghost.className = 'ghost';
-    place(ghost, pt);
-    root.append(ghost);
-  }
-
-  function clearGhost() {
-    ghost?.remove();
-    ghost = null;
-  }
-
-  return { render, tokens, toPct, showGhost, clearGhost, place };
+  return { render };
 }

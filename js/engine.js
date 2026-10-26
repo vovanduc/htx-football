@@ -35,19 +35,3 @@ export function benchOf(lineup, players) {
   const onPitch = new Set(SLOTS.map(s => lineup[s]));
   return players.filter(p => !onPitch.has(p.id));
 }
-
-export function distance([ax, ay], [bx, by]) {
-  return Math.hypot(ax - bx, ay - by);
-}
-
-export function scoreDrop(dist) {
-  if (dist <= 6) return { points: 100, verdict: 'Chuẩn như Pep' };
-  if (dist <= 12) return { points: 70, verdict: 'Tạm được, lệch xíu' };
-  if (dist <= 20) return { points: 40, verdict: 'Hơi lạc trôi' };
-  return { points: 0, verdict: 'Đi lạc sang sân bên cạnh' };
-}
-
-export function clampPoint([x, y]) {
-  const c = v => Math.min(100, Math.max(0, v));
-  return [c(x), c(y)];
-}

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { PLAYERS, SLOTS, DEFAULT_LINEUP, TEAM } from '../js/data/roster.js';
 import { TACTICS, SCENARIOS, allFrames } from '../js/data/tactics.js';
-import { LESSONS, GOLDEN_RULES } from '../js/data/lessons.js';
+import { GOLDEN_RULES } from '../js/data/rules.js';
 
 const inPitch = ([x, y]) => x >= 0 && x <= 100 && y >= 0 && y <= 100;
 
@@ -52,7 +52,6 @@ test('bóng đá có lý: thủ môn luôn là người lùi sâu nhất của m
   }
 });
 
-test('bài học + luật vàng có cấu trúc đúng', () => {
+test('luật vàng đủ 5 điều trở lên', () => {
   assert.ok(GOLDEN_RULES.length >= 5);
-  for (const l of LESSONS) assert.ok(l.date && l.opponent && Array.isArray(l.notes));
 });

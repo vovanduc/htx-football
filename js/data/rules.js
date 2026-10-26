@@ -1,7 +1,3 @@
-// Bài học sau trận: thêm mục mới lên ĐẦU mảng sau mỗi trận.
-// { date: 'YYYY-MM-DD', opponent: 'Tên đội bạn', result: '3-2', notes: ['...'], tacticId?: 'can-bang' }
-export const LESSONS = [];
-
 // Luật vàng sân 7: rút từ tài liệu huấn luyện 7v7/8v8 (xem docs/specs).
 export const GOLDEN_RULES = [
   'Luôn giữ ít nhất 2 người ở lại phía sau khi tấn công.',

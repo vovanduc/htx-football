@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PLAYERS, DEFAULT_LINEUP, SLOTS } from '../js/data/roster.js';
-import { sanitizeLineup, swapPlayers, benchOf, distance, scoreDrop, clampPoint } from '../js/engine.js';
+import { sanitizeLineup, swapPlayers, benchOf } from '../js/engine.js';
 
 test('sanitizeLineup giữ lineup hợp lệ', () => {
   const saved = { ...DEFAULT_LINEUP, ST: 'minhhung' };
@@ -38,17 +38,4 @@ test('swapPlayers: cùng người, hai dự bị hoặc id lạ → không đổ
 test('benchOf trả người không có slot', () => {
   assert.deepEqual(benchOf(DEFAULT_LINEUP, PLAYERS).map(p => p.id), ['minhhung']);
   assert.equal(SLOTS.length, 8);
-});
-
-test('distance + scoreDrop theo ngưỡng', () => {
-  assert.equal(distance([0, 0], [3, 4]), 5);
-  assert.deepEqual(scoreDrop(6), { points: 100, verdict: 'Chuẩn như Pep' });
-  assert.deepEqual(scoreDrop(12), { points: 70, verdict: 'Tạm được, lệch xíu' });
-  assert.deepEqual(scoreDrop(20), { points: 40, verdict: 'Hơi lạc trôi' });
-  assert.deepEqual(scoreDrop(20.1), { points: 0, verdict: 'Đi lạc sang sân bên cạnh' });
-});
-
-test('clampPoint kẹp trong 0–100', () => {
-  assert.deepEqual(clampPoint([-5, 120]), [0, 100]);
-  assert.deepEqual(clampPoint([42, 7]), [42, 7]);
 });

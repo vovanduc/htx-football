@@ -497,12 +497,12 @@ export const SCENARIOS = [
     phase: 'defend',
     frame: {
       ball: [62, 30],
-      us: { GK: [50, 86], LB: [28, 60], CB: [50, 66], RB: [72, 60], LM: [38, 40], CM: [56, 38], RM: [66, 32], ST: [58, 26] },
+      us: { GK: [50, 86], LB: [28, 60], CB: [50, 66], RB: [72, 60], LM: [38, 40], CM: [54, 40], RM: [70, 34], ST: [55, 23] },
       them: [[50, 5], [62, 30], [40, 18], [75, 22], [30, 36], [48, 44], [80, 40], [50, 58]],
       arrows: [
-        { from: 'RM', to: [64, 31], kind: 'run' },
-        { from: 'ST', to: [60, 28], kind: 'run' },
-        { from: 'CM', to: [58, 34], kind: 'run' },
+        { from: 'RM', to: [65, 31], kind: 'run' },
+        { from: 'ST', to: [60, 27], kind: 'run' },
+        { from: 'CM', to: [58, 35], kind: 'run' },
       ],
       duties: {
         GK: 'Dâng cao, sẵn sàng phá bóng dài.',
@@ -519,7 +519,7 @@ export const SCENARIOS = [
   },
 ];
 
-// Tiện cho test + quiz: duyệt mọi frame kèm khóa định danh.
+// Duyệt mọi frame kèm khóa định danh (dùng trong test).
 export function allFrames() {
   const out = [];
   for (const t of TACTICS) {
